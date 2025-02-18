@@ -17,7 +17,7 @@ export async function lendAsset(agent: SolanaAgentKit, amount: number) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          account: agent.wallet_address.toBase58(),
+          account: agent.wallet.publicKey.toBase58(),
         }),
       },
     );

@@ -21,7 +21,7 @@ export async function manifestCreateMarket(
   const marketKeypair: Keypair = Keypair.generate();
   const FIXED_MANIFEST_HEADER_SIZE: number = 256;
   const createAccountIx: TransactionInstruction = SystemProgram.createAccount({
-    fromPubkey: agent.wallet_address,
+    fromPubkey: agent.wallet.publicKey,
     newAccountPubkey: marketKeypair.publicKey,
     space: FIXED_MANIFEST_HEADER_SIZE,
     lamports: await agent.connection.getMinimumBalanceForRentExemption(
@@ -30,7 +30,7 @@ export async function manifestCreateMarket(
     programId: new PublicKey("MNFSTqtC93rEfYHB6hF82sKdZpUDFWkViLByLd1k1Ms"),
   });
   const createMarketIx = ManifestClient["createMarketIx"](
-    agent.wallet_address,
+    agent.wallet.publicKey,
     baseMint,
     quoteMint,
     marketKeypair.publicKey,
@@ -40,7 +40,7 @@ export async function manifestCreateMarket(
   tx.add(createAccountIx);
   tx.add(createMarketIx);
 
-  return [await signOrSendTX(agent, tx), marketKeypair.publicKey.toBase58()];
+  return [await agent.wallet.signTransaction(tx), marketKeypair.publicKey.toBase58()];
 }
 
 /**

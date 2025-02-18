@@ -110,7 +110,7 @@ export async function flashOpenTrade(
 
     // Get NFT trading account info
     const tradingAccounts = await getNftTradingAccountInfo(
-      agent.wallet_address,
+      agent.wallet.publicKey,
       perpClient,
       poolConfig,
       collateralSymbol,
