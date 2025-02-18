@@ -36,7 +36,7 @@ export async function getComputeBudgetInstructions(
   const { blockhash, lastValidBlockHeight } =
     await agent.connection.getLatestBlockhash();
   const messageV0 = new TransactionMessage({
-    payerKey: agent.wallet_address,
+    payerKey: agent.wallet.publicKey,
     recentBlockhash: blockhash,
     instructions: instructions,
   }).compileToV0Message();
@@ -60,14 +60,15 @@ export async function getComputeBudgetInstructions(
     const legacyTransaction = new Transaction();
     legacyTransaction.recentBlockhash = blockhash;
     legacyTransaction.lastValidBlockHeight = lastValidBlockHeight;
-    legacyTransaction.feePayer = agent.wallet_address;
+    legacyTransaction.feePayer = agent.wallet.publicKey;
 
     // Add the compute budget instruction and original instructions
     legacyTransaction.add(computeBudgetLimitInstruction, ...instructions);
 
     // Sign the transaction
-    const signedTransaction =
-      await agent.config.signTransaction(legacyTransaction);
+    const signedTransaction = await agent.wallet.signTransaction(
+      legacyTransaction,
+    );
 
     // Use Helius API for priority fee calculation
     const response = await fetch(
@@ -150,13 +151,13 @@ export async function sendTx(
   ];
   const { blockhash } = await agent.connection.getLatestBlockhash();
   const messageV0 = new TransactionMessage({
-    payerKey: agent.wallet_address,
+    payerKey: agent.wallet.publicKey,
     recentBlockhash: blockhash,
     instructions: allInstructions,
   }).compileToV0Message();
   const transaction = new VersionedTransaction(messageV0);
   transaction.sign([...(otherKeypairs ?? [])] as Signer[]);
-  const signedTransaction = await agent.config.signTransaction(transaction);
+  const signedTransaction = await agent.wallet.signTransaction(transaction);
 
   const timeoutMs = 90000;
   const startTime = Date.now();
@@ -188,52 +189,4 @@ export async function sendTx(
     }
   }
   throw new Error("Transaction timeout");
-}
-
-export async function signOrSendTX(
-  agent: SolanaAgentKit,
-  instructionsOrTransaction:
-    | TransactionInstruction[]
-    | Transaction
-    | VersionedTransaction,
-  otherKeypairs?: Keypair[],
-  feeTier?: keyof typeof feeTiers,
-): Promise<string | TransactionOrVersionedTransaction> {
-  if (
-    instructionsOrTransaction instanceof Transaction ||
-    instructionsOrTransaction instanceof VersionedTransaction
-  ) {
-    if (agent.config.signOnly) {
-      return instructionsOrTransaction;
-    }
-
-    return await agent.config.sendTransaction(instructionsOrTransaction);
-  }
-
-  const ixComputeBudget = await getComputeBudgetInstructions(
-    agent,
-    instructionsOrTransaction,
-    feeTier ?? "mid",
-  );
-  const allInstructions = [
-    ixComputeBudget.computeBudgetLimitInstruction,
-    ixComputeBudget.computeBudgetPriorityFeeInstructions,
-    ...instructionsOrTransaction,
-  ];
-  const { blockhash } = await agent.connection.getLatestBlockhash();
-  const messageV0 = new TransactionMessage({
-    payerKey: agent.wallet_address,
-    recentBlockhash: blockhash,
-    instructions: allInstructions,
-  }).compileToV0Message();
-
-  const transaction = new VersionedTransaction(messageV0);
-  transaction.sign([...(otherKeypairs ?? [])] as Signer[]);
-  const signedTransaction = await agent.config.signTransaction(transaction);
-
-  if (agent.config.signOnly) {
-    return signedTransaction;
-  }
-
-  return sendTx(agent, instructionsOrTransaction, otherKeypairs, feeTier);
 }

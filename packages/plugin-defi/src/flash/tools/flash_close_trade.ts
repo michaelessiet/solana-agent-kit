@@ -73,7 +73,7 @@ export async function flashCloseTrade(
 
     // Get NFT trading account info
     const tradingAccounts = await getNftTradingAccountInfo(
-      agent.wallet_address,
+      agent.wallet.publicKey,
       perpClient,
       poolConfig,
       collateralSymbol,
