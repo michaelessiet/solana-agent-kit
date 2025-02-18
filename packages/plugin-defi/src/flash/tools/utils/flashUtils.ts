@@ -11,7 +11,7 @@ import {
 import { Cluster, PublicKey, Connection, Keypair } from "@solana/web3.js";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 import type { SolanaAgentKit } from "solana-agent-kit";
-import type { BaseWallet } from "solana-agent-kit";
+
 const POOL_NAMES = [
   "Crypto.1",
   "Virtual.1",
@@ -268,9 +268,9 @@ export async function getNftTradingAccountInfo(
  */
 export function createPerpClient(
   connection: Connection,
-  wallet: BaseWallet,
+  wallet: Keypair,
 ): PerpetualsClient {
-  const provider = new AnchorProvider(connection, wallet, {
+  const provider = new AnchorProvider(connection, new Wallet(wallet), {
     commitment: "confirmed",
     preflightCommitment: "confirmed",
     skipPreflight: true,

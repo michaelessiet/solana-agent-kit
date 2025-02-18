@@ -2,7 +2,6 @@ import type { Transaction, VersionedTransaction } from "@solana/web3.js";
 import type { SolanaAgentKit } from "../agent";
 import type { z } from "zod";
 
-
 export interface Plugin {
   name: string;
   methods: Record<string, () => void>;
@@ -15,6 +14,15 @@ export type TransactionOrVersionedTransaction =
   | VersionedTransaction;
 
 export interface Config {
+  signTransaction: (
+    transaction: TransactionOrVersionedTransaction,
+  ) => Promise<TransactionOrVersionedTransaction>;
+  signAllTransactions: (
+    transactions: TransactionOrVersionedTransaction[],
+  ) => Promise<TransactionOrVersionedTransaction[]>;
+  sendTransaction: (
+    transaction: TransactionOrVersionedTransaction,
+  ) => Promise<string>;
   signOnly?: boolean;
   OPENAI_API_KEY?: string;
   JUPITER_REFERRAL_ACCOUNT?: string;
@@ -200,5 +208,3 @@ export interface PriorityFeeResponse {
     options: { priorityLevel: string };
   }>;
 }
-
-export type { BaseWallet } from "./wallet";

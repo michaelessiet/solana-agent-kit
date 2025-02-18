@@ -15,7 +15,7 @@ export async function rock_paper_scissor(
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          account: agent.wallet.publicKey.toBase58(),
+          account: agent.wallet_address.toBase58(),
         }),
       },
     );
@@ -28,7 +28,7 @@ export async function rock_paper_scissor(
         return signOrSendTX(agent, txn);
       }
 
-      const sig = await agent.wallet.signTransaction(txn);
+      const sig = (await signOrSendTX(agent, txn)) as string;
       const href = data.links?.next?.href;
 
       return await outcome(agent, sig, href);
@@ -55,7 +55,7 @@ async function outcome(
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          account: agent.wallet.publicKey.toBase58(),
+          account: agent.wallet_address.toBase58(),
           signature: sig,
         }),
       },
@@ -84,7 +84,7 @@ async function won(agent: SolanaAgentKit, href: string): Promise<string> {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          account: agent.wallet.publicKey.toBase58(),
+          account: agent.wallet_address.toBase58(),
         }),
       },
     );
@@ -93,7 +93,7 @@ async function won(agent: SolanaAgentKit, href: string): Promise<string> {
     if (data.transaction) {
       const txn = Transaction.from(Buffer.from(data.transaction, "base64"));
       // txn.partialSign(agent.wallet);
-      const signedTxn = await agent.wallet.signTransaction(txn);
+      const signedTxn = await agent.config.signTransaction(txn);
       await agent.connection.sendRawTransaction(signedTxn.serialize(), {
         preflightCommitment: "confirmed",
       });
@@ -118,7 +118,7 @@ async function postWin(agent: SolanaAgentKit, href: string): Promise<string> {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          account: agent.wallet.publicKey.toBase58(),
+          account: agent.wallet_address.toBase58(),
         }),
       },
     );

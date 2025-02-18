@@ -1,6 +1,5 @@
 import { Connection, PublicKey } from "@solana/web3.js";
 import type { Config, Plugin } from "../types";
-import type { BaseWallet } from "../types/wallet";
 
 /**
  * Defines a type that merges all plugin methods into the `methods` object
@@ -37,15 +36,15 @@ type PluginMethods<T> = T extends Plugin ? T["methods"] : Record<string, never>;
  */
 export class SolanaAgentKit<TPlugins = Record<string, never>> {
   public connection: Connection;
-  public wallet: BaseWallet;
+  public wallet_address: PublicKey;
   public config: Config;
   private plugins: Map<string, Plugin> = new Map();
 
   public methods: TPlugins = {} as TPlugins;
 
-  constructor(wallet: BaseWallet, rpc_url: string, config: Config) {
+  constructor(publicKey: string, rpc_url: string, config: Config) {
     this.connection = new Connection(rpc_url);
-    this.wallet = wallet;
+    this.wallet_address = new PublicKey(publicKey);
 
     this.config = config;
   }

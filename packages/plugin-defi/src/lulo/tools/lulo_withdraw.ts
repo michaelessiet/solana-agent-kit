@@ -24,11 +24,11 @@ export async function luloWithdraw(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-wallet-pubkey": agent.wallet.publicKey.toBase58(),
+          "x-wallet-pubkey": agent.wallet_address.toBase58(),
           "x-api-key": agent.config.FLEXLEND_API_KEY,
         },
         body: JSON.stringify({
-          owner: agent.wallet.publicKey.toBase58(),
+          owner: agent.wallet_address.toBase58(),
           mintAddress: mintAddress,
           depositAmount: amount,
         }),
