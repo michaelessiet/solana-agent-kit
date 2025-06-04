@@ -74,6 +74,7 @@ import createOrcaSingleSidedWhirlpoolAction from "./orca/actions/createOrcaSingl
 import raydiumCreateAmmV4Action from "./raydium/actions/raydiumCreateAmmV4";
 import raydiumCreateClmmAction from "./raydium/actions/raydiumCreateClmm";
 import raydiumCreateCpmmAction from "./raydium/actions/raydiumCreateCpmm";
+import raydiumCreateLaunchlabTokenAction from "./raydium/actions/raydiumCreateLaunchlabToken";
 
 // Import Solayer actions
 import stakeWithSolayerAction from "./solayer/actions/stakeWithSolayer";
@@ -126,6 +127,7 @@ import {
   raydiumCreateAmmV4,
   raydiumCreateClmm,
   raydiumCreateCpmm,
+  raydiumCreateLaunchlabToken,
 } from "./raydium";
 
 // Import Solayer tools
@@ -237,6 +239,7 @@ const DefiPlugin = {
     raydiumCreateAmmV4,
     raydiumCreateClmm,
     raydiumCreateCpmm,
+    raydiumCreateLaunchlabToken,
 
     // Solayer methods
     stakeWithSolayer,
@@ -335,6 +338,7 @@ const DefiPlugin = {
     raydiumCreateAmmV4Action,
     raydiumCreateClmmAction,
     raydiumCreateCpmmAction,
+    raydiumCreateLaunchlabTokenAction,
 
     // Solayer actions
     stakeWithSolayerAction,
