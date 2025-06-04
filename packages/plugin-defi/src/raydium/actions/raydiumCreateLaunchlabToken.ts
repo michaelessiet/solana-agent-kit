@@ -2,6 +2,7 @@ import { TxVersion } from "@raydium-io/raydium-sdk-v2";
 import { Action } from "solana-agent-kit";
 import { z } from "zod";
 import { raydiumCreateLaunchlabToken } from "../raydium_create_launchlab_token";
+import BN from "bn.js";
 
 const raydiumCreateLaunchlabTokenAction: Action = {
   name: "RAYDIUM_CREATE_LAUNCHLAB_TOKEN",
@@ -36,7 +37,7 @@ const raydiumCreateLaunchlabTokenAction: Action = {
   schema: z.object({
     name: z.string().min(1).describe("Token name"),
     symbol: z.string().min(1).describe("Token symbol"),
-    decimals: z.number().int().min(0).max(255).default(9).describe("Decimals"),
+    decimals: z.number().int().min(0).max(255).default(6).describe("Decimals"),
     supply: z
       .number()
       .int()
@@ -71,9 +72,9 @@ const raydiumCreateLaunchlabTokenAction: Action = {
     buyAmount: z
       .number()
       .int()
-      .min(0)
+      .min(1)
       .optional()
-      .default(0)
+      .default(1)
       .describe("Buy amount in lamports (default is 0)"),
     createOnly: z
       .boolean()
@@ -101,15 +102,14 @@ const raydiumCreateLaunchlabTokenAction: Action = {
         name,
         symbol,
         decimals,
-        supply: supply || 1000000, // default supply
+        supply, // default supply
         uri,
-        platformId:
-          platformId || "4Bu96XjU84XjPDSpveTVf6LYGCkfW5FK7SNkREWcEfV4", // default Raydium platform
-        migrateType: migrateType || "amm",
-        txVersion: txVersion || TxVersion.V0,
-        slippageBps: slippageBps || 100, // default 1% slippage
-        buyAmount: buyAmount || 0, // default no buy amount
-        createOnly: createOnly || false, // default false
+        platformId,
+        migrateType,
+        txVersion,
+        slippageBps, // default 1% slippage
+        createOnly, // default false
+        buyAmount: new BN(buyAmount as number), // default no buy amount
       };
 
       const result = await raydiumCreateLaunchlabToken(agent, tokenParams);
@@ -127,7 +127,7 @@ const raydiumCreateLaunchlabTokenAction: Action = {
         // @ts-expect-error result is not typed yet
         message: `Launchlab token successfully created. The token mint address is ${result.newTokenAddress}.`,
         // @ts-expect-error result is not typed yet
-        signature: result.signature,
+        signatures: result.signatures,
       };
     } catch (error: any) {
       return {

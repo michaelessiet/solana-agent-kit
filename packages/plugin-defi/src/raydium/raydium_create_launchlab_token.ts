@@ -44,12 +44,13 @@ export async function raydiumCreateLaunchlabToken(
     tokenParams.platformId || LaunchpadPoolInitParam.platformId.toBase58();
   tokenParams.migrateType = tokenParams.migrateType || "amm";
   tokenParams.txVersion = tokenParams.txVersion || TxVersion.V0;
-  tokenParams.decimals = tokenParams.decimals || 9;
+  tokenParams.decimals = tokenParams.decimals || 6;
   tokenParams.extraSigners = tokenParams.extraSigners || [];
 
   try {
     const raydium = await Raydium.load({
       connection: agent.connection,
+      owner: agent.wallet.publicKey,
     });
     const newTokenKeypair = Keypair.generate();
     const newTokenMint = newTokenKeypair.publicKey;
@@ -77,6 +78,7 @@ export async function raydiumCreateLaunchlabToken(
       symbol: tokenParams.symbol,
       migrateType: tokenParams.migrateType,
       uri: tokenParams.uri,
+      feePayer: agent.wallet.publicKey,
       configId,
       configInfo,
       mintBDecimals: baseTokenInfo.decimals,
@@ -88,6 +90,13 @@ export async function raydiumCreateLaunchlabToken(
       extraSigners: [newTokenKeypair, ...tokenParams.extraSigners],
       supply: new BN(tokenParams.supply),
       computeBudgetConfig,
+    });
+
+    const blockhash = (await agent.connection.getLatestBlockhash()).blockhash;
+
+    transactions.forEach((tx) => {
+      tx.message.recentBlockhash = blockhash;
+      tx.sign([newTokenKeypair]);
     });
 
     const sigOrTx = await signOrSendTX(agent, transactions);
