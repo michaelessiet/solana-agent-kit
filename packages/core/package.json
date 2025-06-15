@@ -1,6 +1,6 @@
 {
   "name": "solana-agent-kit",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "type": "module",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
